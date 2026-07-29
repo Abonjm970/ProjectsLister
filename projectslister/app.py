@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple
 from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.binding import Binding
-from textual.containers import Container, Horizontal, Vertical
+from textual.containers import Container, Horizontal
 from textual.screen import ModalScreen
 from textual.widgets import Button, Input, Label, OptionList, Static
 from textual.widgets.option_list import Option
@@ -155,10 +155,9 @@ OptionList > .option-list--option-highlighted {
 }
 
 .footer-btn {
-    min-width: 9;
-    height: 1;
     margin: 0 1;
-    padding: 0 1;
+    height: 3;
+    min-width: 10;
     border: none;
     background: #0f172a;
     color: #38bdf8;
@@ -338,6 +337,9 @@ class ProjectsListerApp(App[Optional[str]]):
 
     def on_mount(self) -> None:
         self.refresh_project_list()
+        self.call_after_refresh(self.ensure_list_focus)
+
+    def on_ready(self) -> None:
         self.ensure_list_focus()
 
     def on_click(self, event) -> None:
@@ -364,7 +366,7 @@ class ProjectsListerApp(App[Optional[str]]):
 
     def ensure_list_focus(self) -> None:
         search_bar = self.query_one("#search-bar", Input)
-        if self.focused is search_bar:
+        if search_bar.has_class("visible") and self.focused is search_bar:
             return
 
         option_list = self.query_one("#project-list", OptionList)
