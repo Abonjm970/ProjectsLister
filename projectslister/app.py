@@ -17,6 +17,7 @@ CSS = """
 Screen {
     background: #09090b;
     color: #ffffff;
+    layout: vertical;
 }
 
 #app-header {
@@ -29,8 +30,9 @@ Screen {
 }
 
 #main-container {
-    padding: 1 3;
     height: 1fr;
+    padding: 1 2;
+    background: #09090b;
 }
 
 #search-bar {
@@ -50,7 +52,7 @@ Screen {
     height: 1fr;
     border: round #71717a;
     background: #09090b;
-    padding: 1;
+    padding: 0 1;
 }
 
 #project-list:focus {
@@ -147,7 +149,6 @@ OptionList > .option-list--option-highlighted {
 }
 
 #custom-footer {
-    dock: bottom;
     height: 3;
     align: center middle;
     background: #18181b;
@@ -157,8 +158,8 @@ OptionList > .option-list--option-highlighted {
 
 .footer-btn {
     margin: 0 1;
-    height: 3;
-    min-width: 11;
+    height: 1;
+    min-width: 10;
     border: none;
     background: #09090b;
     color: #ffffff;
