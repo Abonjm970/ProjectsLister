@@ -157,10 +157,10 @@ OptionList > .option-list--option-highlighted {
 .footer-btn {
     margin: 0 1;
     height: 3;
-    min-width: 10;
+    min-width: 11;
     border: none;
     background: #0f172a;
-    color: #38bdf8;
+    color: #f8fafc;
     text-style: bold;
 }
 
@@ -186,6 +186,15 @@ def format_display_path(path_str: str) -> str:
     except Exception:
         pass
     return path_str
+
+
+def make_key_btn_label(key: str, action: str) -> Text:
+    t = Text()
+    t.append("[", style="bold #64748b")
+    t.append(key, style="bold #38bdf8")
+    t.append("] ", style="bold #64748b")
+    t.append(action, style="bold #f8fafc")
+    return t
 
 
 class ProjectFormModal(ModalScreen[Optional[Tuple[str, str]]]):
@@ -327,13 +336,13 @@ class ProjectsListerApp(App[Optional[str]]):
             yield OptionList(id="project-list")
             yield EmptyState("No projects found. Press 'a' to add a project.", id="empty-state")
         with Horizontal(id="custom-footer"):
-            yield Button("[a] add", id="btn-footer-add", classes="footer-btn")
-            yield Button("[e] edit", id="btn-footer-edit", classes="footer-btn")
-            yield Button("[d] delete", id="btn-footer-delete", classes="footer-btn")
-            yield Button(Text("[/] search"), id="btn-footer-search", classes="footer-btn")
-            yield Button("[enter] open", id="btn-footer-open", classes="footer-btn")
-            yield Button("[esc] back", id="btn-footer-back", classes="footer-btn")
-            yield Button("[q] quit", id="btn-footer-quit", classes="footer-btn")
+            yield Button(make_key_btn_label("a", "add"), id="btn-footer-add", classes="footer-btn")
+            yield Button(make_key_btn_label("e", "edit"), id="btn-footer-edit", classes="footer-btn")
+            yield Button(make_key_btn_label("d", "delete"), id="btn-footer-delete", classes="footer-btn")
+            yield Button(make_key_btn_label("/", "search"), id="btn-footer-search", classes="footer-btn")
+            yield Button(make_key_btn_label("enter", "open"), id="btn-footer-open", classes="footer-btn")
+            yield Button(make_key_btn_label("esc", "back"), id="btn-footer-back", classes="footer-btn")
+            yield Button(make_key_btn_label("q", "quit"), id="btn-footer-quit", classes="footer-btn")
 
     def on_mount(self) -> None:
         self.refresh_project_list()
