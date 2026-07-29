@@ -15,17 +15,17 @@ from projectslister.models import Project, ProjectManager
 
 CSS = """
 Screen {
-    background: #0f172a;
-    color: #f8fafc;
+    background: #09090b;
+    color: #ffffff;
 }
 
 #app-header {
     height: 3;
     content-align: center middle;
-    background: #1e293b;
-    color: #38bdf8;
+    background: #18181b;
+    color: #ffffff;
     text-style: bold;
-    border-bottom: solid #3b82f6;
+    border-bottom: solid #71717a;
 }
 
 #main-container {
@@ -35,9 +35,9 @@ Screen {
 
 #search-bar {
     margin-bottom: 1;
-    border: round #38bdf8;
-    background: #1e293b;
-    color: #f8fafc;
+    border: round #71717a;
+    background: #18181b;
+    color: #ffffff;
     display: none;
     height: 3;
 }
@@ -48,59 +48,59 @@ Screen {
 
 #project-list {
     height: 1fr;
-    border: round #3b82f6;
-    background: #0f172a;
+    border: round #71717a;
+    background: #09090b;
     padding: 1;
 }
 
 #project-list:focus {
-    border: double #38bdf8;
+    border: double #e4e4e7;
 }
 
 OptionList > .option-list--option-highlighted {
-    background: #1e3a8a;
+    background: #27272a;
     color: #ffffff;
     text-style: bold;
 }
 
 #empty-state {
     text-align: center;
-    color: #94a3b8;
+    color: #a1a1aa;
     padding: 4 2;
     content-align: center middle;
     height: 1fr;
-    border: round #3b82f6;
+    border: round #71717a;
     text-style: bold;
 }
 
 #empty-state:focus {
-    border: double #38bdf8;
+    border: double #e4e4e7;
 }
 
 .modal-screen {
     align: center middle;
-    background: rgba(15, 23, 42, 0.85);
+    background: rgba(9, 9, 11, 0.88);
 }
 
 .modal-box {
     width: 70;
     max-width: 95%;
     height: auto;
-    background: #1e293b;
-    border: thick #3b82f6;
+    background: #18181b;
+    border: thick #71717a;
     padding: 2 3;
 }
 
 .modal-title {
     text-style: bold;
-    color: #38bdf8;
+    color: #ffffff;
     margin-bottom: 1;
     text-align: center;
 }
 
 .modal-label {
     margin-top: 1;
-    color: #e2e8f0;
+    color: #e4e4e7;
     text-style: bold;
 }
 
@@ -108,12 +108,13 @@ OptionList > .option-list--option-highlighted {
     margin-top: 0;
     margin-bottom: 1;
     height: 3;
-    border: round #64748b;
-    background: #0f172a;
+    border: round #52525b;
+    background: #09090b;
+    color: #ffffff;
 }
 
 .modal-input:focus {
-    border: round #38bdf8;
+    border: round #e4e4e7;
 }
 
 .error-text {
@@ -141,7 +142,7 @@ OptionList > .option-list--option-highlighted {
     margin-top: 2;
     margin-bottom: 1;
     text-align: center;
-    color: #f1f5f9;
+    color: #ffffff;
     text-style: bold;
 }
 
@@ -149,8 +150,8 @@ OptionList > .option-list--option-highlighted {
     dock: bottom;
     height: 3;
     align: center middle;
-    background: #1e293b;
-    border-top: solid #3b82f6;
+    background: #18181b;
+    border-top: solid #71717a;
     padding: 0 1;
 }
 
@@ -159,18 +160,18 @@ OptionList > .option-list--option-highlighted {
     height: 3;
     min-width: 11;
     border: none;
-    background: #0f172a;
-    color: #f8fafc;
+    background: #09090b;
+    color: #ffffff;
     text-style: bold;
 }
 
 .footer-btn:hover {
-    background: #3b82f6;
+    background: #3f3f46;
     color: #ffffff;
 }
 
 .footer-btn:focus {
-    background: #2563eb;
+    background: #52525b;
     color: #ffffff;
 }
 """
@@ -190,10 +191,10 @@ def format_display_path(path_str: str) -> str:
 
 def make_key_btn_label(key: str, action: str) -> Text:
     t = Text()
-    t.append("[", style="bold #64748b")
-    t.append(key, style="bold #38bdf8")
-    t.append("] ", style="bold #64748b")
-    t.append(action, style="bold #f8fafc")
+    t.append("[", style="bold #71717a")
+    t.append(key, style="bold #ffffff")
+    t.append("] ", style="bold #71717a")
+    t.append(action, style="bold #e4e4e7")
     return t
 
 
@@ -423,8 +424,8 @@ class ProjectsListerApp(App[Optional[str]]):
             for idx, p in enumerate(self.filtered_projects):
                 disp_path = format_display_path(p.path)
                 prompt = (
-                    f" [bold #f8fafc]▶ {p.name}[/bold #f8fafc]\n"
-                    f"   [dim #38bdf8]📁 {disp_path}[/dim #38bdf8]"
+                    f" [bold #ffffff]▶ {p.name}[/bold #ffffff]\n"
+                    f"   [dim #a1a1aa]📁 {disp_path}[/dim #a1a1aa]"
                 )
                 option_list.add_option(Option(prompt, id=str(idx)))
                 if select_project and p.name == select_project.name and p.path == select_project.path:
