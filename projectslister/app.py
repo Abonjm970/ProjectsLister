@@ -6,7 +6,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Button, Footer, Header, Input, Label, OptionList, Static
+from textual.widgets import Button, Header, Input, Label, OptionList, Static
 from textual.widgets.option_list import Option
 
 from projectslister.models import Project, ProjectManager
@@ -14,18 +14,31 @@ from projectslister.models import Project, ProjectManager
 
 CSS = """
 Screen {
-    background: $surface;
+    background: #0f172a;
+    color: #f8fafc;
+}
+
+#app-header {
+    height: 3;
+    content-align: center middle;
+    background: #1e293b;
+    color: #38bdf8;
+    text-style: bold;
+    border-bottom: solid #3b82f6;
 }
 
 #main-container {
-    padding: 1 2;
+    padding: 1 3;
     height: 1fr;
 }
 
 #search-bar {
     margin-bottom: 1;
-    border: tall $accent;
+    border: round #38bdf8;
+    background: #1e293b;
+    color: #f8fafc;
     display: none;
+    height: 3;
 }
 
 #search-bar.visible {
@@ -34,71 +47,110 @@ Screen {
 
 #project-list {
     height: 1fr;
-    border: round $primary;
-    background: $surface;
+    border: round #3b82f6;
+    background: #0f172a;
+    padding: 1;
+}
+
+#project-list:focus {
+    border: double #38bdf8;
+}
+
+OptionList > .option-list--option-highlighted {
+    background: #1e3a8a;
+    color: #ffffff;
+    text-style: bold;
 }
 
 #empty-state {
     text-align: center;
-    color: $text-muted;
-    padding: 3;
+    color: #94a3b8;
+    padding: 4 2;
     content-align: center middle;
     height: 1fr;
-    border: round $primary;
+    border: round #3b82f6;
+    text-style: bold;
+}
+
+#empty-state:focus {
+    border: double #38bdf8;
 }
 
 .modal-screen {
     align: center middle;
-    background: rgba(0, 0, 0, 0.65);
+    background: rgba(15, 23, 42, 0.85);
 }
 
 .modal-box {
-    width: 60;
-    max-width: 90%;
+    width: 70;
+    max-width: 95%;
     height: auto;
-    background: $panel;
-    border: thick $primary;
-    padding: 1 2;
+    background: #1e293b;
+    border: thick #3b82f6;
+    padding: 2 3;
 }
 
 .modal-title {
     text-style: bold;
-    color: $accent;
+    color: #38bdf8;
     margin-bottom: 1;
     text-align: center;
 }
 
 .modal-label {
     margin-top: 1;
-    color: $text;
+    color: #e2e8f0;
+    text-style: bold;
 }
 
 .modal-input {
     margin-top: 0;
     margin-bottom: 1;
+    height: 3;
+    border: round #64748b;
+    background: #0f172a;
+}
+
+.modal-input:focus {
+    border: round #38bdf8;
 }
 
 .error-text {
-    color: $error;
+    color: #ef4444;
     margin-top: 1;
     margin-bottom: 1;
     min-height: 1;
+    text-style: bold;
+    text-align: center;
 }
 
 .button-row {
-    margin-top: 1;
-    align: right middle;
+    margin-top: 2;
+    align: center middle;
     height: auto;
 }
 
 .button-row Button {
-    margin-left: 1;
+    margin: 0 2;
+    min-width: 14;
+    height: 3;
 }
 
 #confirm-message {
-    margin-top: 1;
+    margin-top: 2;
     margin-bottom: 1;
     text-align: center;
+    color: #f1f5f9;
+    text-style: bold;
+}
+
+#custom-footer {
+    dock: bottom;
+    height: 3;
+    content-align: center middle;
+    background: #1e293b;
+    color: #94a3b8;
+    border-top: solid #3b82f6;
 }
 """
 
@@ -125,7 +177,7 @@ class ProjectFormModal(ModalScreen[Optional[Tuple[str, str]]]):
 
     def compose(self) -> ComposeResult:
         with Container(classes="modal-box"):
-            yield Label(self.form_title, classes="modal-title")
+            yield Label(f"=== {self.form_title} ===", classes="modal-title")
             
             yield Label("Project Name:", classes="modal-label")
             initial_name = self.project.name if self.project else ""
@@ -195,7 +247,7 @@ class ConfirmModal(ModalScreen[bool]):
     def compose(self) -> ComposeResult:
         variant = "error" if self.is_danger else "primary"
         with Container(classes="modal-box"):
-            yield Label(self.confirm_title, classes="modal-title")
+            yield Label(f"=== {self.confirm_title} ===", classes="modal-title")
             yield Label(self.message, id="confirm-message")
             with Horizontal(classes="button-row"):
                 yield Button("Yes [y]", variant=variant, id="btn-yes")
@@ -224,6 +276,10 @@ class EmptyState(Static):
     can_focus = True
 
 
+class CenteredFooter(Static):
+    pass
+
+
 class ProjectsListerApp(App[Optional[str]]):
     TITLE = "ProjectsLister"
     DEFAULT_CSS = CSS
@@ -236,6 +292,8 @@ class ProjectsListerApp(App[Optional[str]]):
         Binding("enter", "open_project", "open", show=True),
         Binding("escape", "clear_search_or_back", "back", show=True),
         Binding("q", "quit_app", "quit", show=True),
+        Binding("j", "cursor_down", "down", show=False),
+        Binding("k", "cursor_up", "up", show=False),
     ]
 
     def __init__(self, manager: Optional[ProjectManager] = None):
@@ -246,15 +304,41 @@ class ProjectsListerApp(App[Optional[str]]):
         self.selected_path: Optional[str] = None
 
     def compose(self) -> ComposeResult:
-        yield Header(show_clock=False)
+        yield Static("🚀 PROJECTS LISTER — Quick Directory Switcher", id="app-header")
         with Container(id="main-container"):
-            yield Input(placeholder="Type to search by name or path...", id="search-bar")
+            yield Input(placeholder="🔍 Type to search projects...", id="search-bar")
             yield OptionList(id="project-list")
             yield EmptyState("No projects found. Press 'a' to add a project.", id="empty-state")
-        yield Footer()
+        yield CenteredFooter(
+            "[bold #38bdf8]a[/bold #38bdf8] add  ·  "
+            "[bold #38bdf8]e[/bold #38bdf8] edit  ·  "
+            "[bold #38bdf8]d[/bold #38bdf8] delete  ·  "
+            "[bold #38bdf8]/[/bold #38bdf8] search  ·  "
+            "[bold #38bdf8]enter[/bold #38bdf8] open  ·  "
+            "[bold #38bdf8]esc[/bold #38bdf8] back  ·  "
+            "[bold #38bdf8]q[/bold #38bdf8] quit",
+            id="custom-footer"
+        )
 
     def on_mount(self) -> None:
         self.refresh_project_list()
+
+    def on_click(self, event) -> None:
+        search_bar = self.query_one("#search-bar", Input)
+        if self.focused is not search_bar:
+            self.ensure_list_focus()
+
+    def ensure_list_focus(self) -> None:
+        search_bar = self.query_one("#search-bar", Input)
+        if self.focused is search_bar:
+            return
+
+        option_list = self.query_one("#project-list", OptionList)
+        empty_state = self.query_one("#empty-state", Static)
+        if option_list.display:
+            option_list.focus()
+        else:
+            empty_state.focus()
 
     def refresh_project_list(self, select_project: Optional[Project] = None) -> None:
         self.projects = self.manager.load_projects()
@@ -293,7 +377,10 @@ class ProjectsListerApp(App[Optional[str]]):
             select_idx = 0
             for idx, p in enumerate(self.filtered_projects):
                 disp_path = format_display_path(p.path)
-                prompt = f"[bold cyan]{p.name}[/bold cyan]  [dim]({disp_path})[/dim]"
+                prompt = (
+                    f" [bold #f8fafc]▶ {p.name}[/bold #f8fafc]\n"
+                    f"   [dim #38bdf8]📁 {disp_path}[/dim #38bdf8]"
+                )
                 option_list.add_option(Option(prompt, id=str(idx)))
                 if select_project and p.name == select_project.name and p.path == select_project.path:
                     select_idx = idx
@@ -317,6 +404,8 @@ class ProjectsListerApp(App[Optional[str]]):
                     self.refresh_project_list(select_project=new_proj)
                 else:
                     self.notify(err, severity="error")
+            else:
+                self.ensure_list_focus()
 
         self.push_screen(ProjectFormModal("Add Project"), on_add_done)
 
@@ -334,6 +423,8 @@ class ProjectsListerApp(App[Optional[str]]):
                     self.refresh_project_list(select_project=updated_proj)
                 else:
                     self.notify(err, severity="error")
+            else:
+                self.ensure_list_focus()
 
         self.push_screen(ProjectFormModal("Edit Project", project=proj), on_edit_done)
 
@@ -347,11 +438,14 @@ class ProjectsListerApp(App[Optional[str]]):
             if confirmed:
                 self.manager.delete_project(proj)
                 self.refresh_project_list()
+            else:
+                self.ensure_list_focus()
 
         msg = f"Are you sure you want to delete '{proj.name}'?"
         self.push_screen(ConfirmModal("Delete Project", msg, is_danger=True), on_delete_done)
 
     def action_open_project(self) -> None:
+        # If search bar is focused, pressing enter opens the highlighted project
         proj = self.get_currently_selected_project()
         if not proj:
             self.notify("No project selected to open.", severity="warning")
@@ -362,6 +456,8 @@ class ProjectsListerApp(App[Optional[str]]):
                 self.manager.mark_as_opened(proj)
                 self.selected_path = proj.path
                 self.exit(0)
+            else:
+                self.ensure_list_focus()
 
         msg = f"Open '{proj.name}'?"
         self.push_screen(ConfirmModal("Open Project", msg, is_danger=False), on_open_done)
@@ -377,14 +473,23 @@ class ProjectsListerApp(App[Optional[str]]):
             search_bar.value = ""
             search_bar.remove_class("visible")
             self.apply_filter()
-        
-        option_list = self.query_one("#project-list", OptionList)
-        if option_list.display:
-            option_list.focus()
+        self.ensure_list_focus()
 
     def action_quit_app(self) -> None:
         self.selected_path = None
         self.exit(0)
+
+    def action_cursor_down(self) -> None:
+        search_bar = self.query_one("#search-bar", Input)
+        if self.focused is not search_bar:
+            option_list = self.query_one("#project-list", OptionList)
+            option_list.action_cursor_down()
+
+    def action_cursor_up(self) -> None:
+        search_bar = self.query_one("#search-bar", Input)
+        if self.focused is not search_bar:
+            option_list = self.query_one("#project-list", OptionList)
+            option_list.action_cursor_up()
 
     def on_input_changed(self, event: Input.Changed) -> None:
         if event.input.id == "search-bar":
