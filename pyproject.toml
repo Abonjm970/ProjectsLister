@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "projectslister"
+version = "0.1.0"
+description = "Fast TUI project switcher"
+readme = "PRD.md"
+requires-python = ">=3.10"
+dependencies = [
+    "textual>=0.50.0",
+    "platformdirs>=4.0.0",
+]
+
+[project.scripts]
+projectslister = "projectslister.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["projectslister*"]
