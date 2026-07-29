@@ -2,11 +2,12 @@ import os
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+from rich.text import Text
 from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal, Vertical
 from textual.screen import ModalScreen
-from textual.widgets import Button, Header, Input, Label, OptionList, Static
+from textual.widgets import Button, Input, Label, OptionList, Static
 from textual.widgets.option_list import Option
 
 from projectslister.models import Project, ProjectManager
@@ -147,10 +148,31 @@ OptionList > .option-list--option-highlighted {
 #custom-footer {
     dock: bottom;
     height: 3;
-    content-align: center middle;
+    align: center middle;
     background: #1e293b;
-    color: #94a3b8;
     border-top: solid #3b82f6;
+    padding: 0 1;
+}
+
+.footer-btn {
+    min-width: 9;
+    height: 1;
+    margin: 0 1;
+    padding: 0 1;
+    border: none;
+    background: #0f172a;
+    color: #38bdf8;
+    text-style: bold;
+}
+
+.footer-btn:hover {
+    background: #3b82f6;
+    color: #ffffff;
+}
+
+.footer-btn:focus {
+    background: #2563eb;
+    color: #ffffff;
 }
 """
 
@@ -276,10 +298,6 @@ class EmptyState(Static):
     can_focus = True
 
 
-class CenteredFooter(Static):
-    pass
-
-
 class ProjectsListerApp(App[Optional[str]]):
     TITLE = "ProjectsLister"
     DEFAULT_CSS = CSS
@@ -309,24 +327,40 @@ class ProjectsListerApp(App[Optional[str]]):
             yield Input(placeholder="🔍 Type to search projects...", id="search-bar")
             yield OptionList(id="project-list")
             yield EmptyState("No projects found. Press 'a' to add a project.", id="empty-state")
-        yield CenteredFooter(
-            "[bold #38bdf8]a[/bold #38bdf8] add  ·  "
-            "[bold #38bdf8]e[/bold #38bdf8] edit  ·  "
-            "[bold #38bdf8]d[/bold #38bdf8] delete  ·  "
-            "[bold #38bdf8]/[/bold #38bdf8] search  ·  "
-            "[bold #38bdf8]enter[/bold #38bdf8] open  ·  "
-            "[bold #38bdf8]esc[/bold #38bdf8] back  ·  "
-            "[bold #38bdf8]q[/bold #38bdf8] quit",
-            id="custom-footer"
-        )
+        with Horizontal(id="custom-footer"):
+            yield Button("[a] add", id="btn-footer-add", classes="footer-btn")
+            yield Button("[e] edit", id="btn-footer-edit", classes="footer-btn")
+            yield Button("[d] delete", id="btn-footer-delete", classes="footer-btn")
+            yield Button(Text("[/] search"), id="btn-footer-search", classes="footer-btn")
+            yield Button("[enter] open", id="btn-footer-open", classes="footer-btn")
+            yield Button("[esc] back", id="btn-footer-back", classes="footer-btn")
+            yield Button("[q] quit", id="btn-footer-quit", classes="footer-btn")
 
     def on_mount(self) -> None:
         self.refresh_project_list()
+        self.ensure_list_focus()
 
     def on_click(self, event) -> None:
         search_bar = self.query_one("#search-bar", Input)
-        if self.focused is not search_bar:
+        if self.focused is not search_bar and not isinstance(self.focused, Button):
             self.ensure_list_focus()
+
+    def on_button_pressed(self, event: Button.Pressed) -> None:
+        btn_id = event.button.id
+        if btn_id == "btn-footer-add":
+            self.action_add_project()
+        elif btn_id == "btn-footer-edit":
+            self.action_edit_project()
+        elif btn_id == "btn-footer-delete":
+            self.action_delete_project()
+        elif btn_id == "btn-footer-search":
+            self.action_focus_search()
+        elif btn_id == "btn-footer-open":
+            self.action_open_project()
+        elif btn_id == "btn-footer-back":
+            self.action_clear_search_or_back()
+        elif btn_id == "btn-footer-quit":
+            self.action_quit_app()
 
     def ensure_list_focus(self) -> None:
         search_bar = self.query_one("#search-bar", Input)
@@ -445,7 +479,6 @@ class ProjectsListerApp(App[Optional[str]]):
         self.push_screen(ConfirmModal("Delete Project", msg, is_danger=True), on_delete_done)
 
     def action_open_project(self) -> None:
-        # If search bar is focused, pressing enter opens the highlighted project
         proj = self.get_currently_selected_project()
         if not proj:
             self.notify("No project selected to open.", severity="warning")
