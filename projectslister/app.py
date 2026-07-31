@@ -147,6 +147,21 @@ OptionList > .option-list--option-highlighted {
     color: #ffffff;
     text-style: bold;
 }
+#custom-footer {
+    height: 1;
+    background: #18181b;
+    color: #a1a1aa;
+    padding: 0 2;
+    align: center middle;
+}
+.footer-text {
+    width: 1fr;
+    content-align: left middle;
+}
+.footer-link {
+    width: auto;
+    content-align: right middle;
+}
 """
 
 def format_display_path(path_str: str) -> str:
@@ -306,6 +321,11 @@ class ProjectsListerApp(App[Optional[str]]):
             yield Input(placeholder="🔍 Type to search projects...", id="search-bar")
             yield OptionList(id="project-list")
             yield EmptyState("No projects found. Press 'a' to add a project.", id="empty-state")
+        with Horizontal(id="custom-footer"):
+            yield Static("by: Abdurrahman Anajm", classes="footer-text")
+            link_text = Text("🔗 GitHub")
+            link_text.stylize("link https://github.com/Abonjm970/ProjectsLister")
+            yield Static(link_text, classes="footer-link")
         yield Footer()
 
     def on_mount(self) -> None:
