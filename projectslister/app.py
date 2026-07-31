@@ -7,7 +7,7 @@ from textual.app import App, ComposeResult
 from textual.binding import Binding
 from textual.containers import Container, Horizontal
 from textual.screen import ModalScreen
-from textual.widgets import Button, Input, Label, OptionList, Static
+from textual.widgets import Button, Footer, Input, Label, OptionList, Static
 from textual.widgets.option_list import Option
 
 from projectslister.models import Project, ProjectManager
@@ -147,36 +147,7 @@ OptionList > .option-list--option-highlighted {
     color: #ffffff;
     text-style: bold;
 }
-
-#custom-footer {
-    height: 3;
-    align: center middle;
-    background: #18181b;
-    border-top: solid #71717a;
-    padding: 0 1;
-}
-
-.footer-btn {
-    margin: 0 1;
-    height: 1;
-    min-width: 10;
-    border: none;
-    background: #09090b;
-    color: #ffffff;
-    text-style: bold;
-}
-
-.footer-btn:hover {
-    background: #3f3f46;
-    color: #ffffff;
-}
-
-.footer-btn:focus {
-    background: #52525b;
-    color: #ffffff;
-}
 """
-
 
 def format_display_path(path_str: str) -> str:
     try:
@@ -313,15 +284,13 @@ class ProjectsListerApp(App[Optional[str]]):
     DEFAULT_CSS = CSS
 
     BINDINGS = [
-        Binding("a", "add_project", "add", show=True),
-        Binding("e", "edit_project", "edit", show=True),
-        Binding("d", "delete_project", "delete", show=True),
-        Binding("slash", "focus_search", "search", show=True),
-        Binding("enter", "open_project", "open", show=True),
-        Binding("escape", "clear_search_or_back", "back", show=True),
-        Binding("q", "quit_app", "quit", show=True),
-        Binding("j", "cursor_down", "down", show=False),
-        Binding("k", "cursor_up", "up", show=False),
+        Binding("a", "add_project", "add"),
+        Binding("e", "edit_project", "edit"),
+        Binding("d", "delete_project", "delete"),
+        Binding("slash", "focus_search", "search"),
+        Binding("enter", "open_project", "open"),
+        Binding("escape", "clear_search_or_back", "back"),
+        Binding("q", "quit_app", "quit"),
     ]
 
     def __init__(self, manager: Optional[ProjectManager] = None):
@@ -330,21 +299,14 @@ class ProjectsListerApp(App[Optional[str]]):
         self.projects: List[Project] = []
         self.filtered_projects: List[Project] = []
         self.selected_path: Optional[str] = None
-
+        
     def compose(self) -> ComposeResult:
         yield Static("🚀 PROJECTS LISTER — Quick Directory Switcher", id="app-header")
         with Container(id="main-container"):
             yield Input(placeholder="🔍 Type to search projects...", id="search-bar")
             yield OptionList(id="project-list")
             yield EmptyState("No projects found. Press 'a' to add a project.", id="empty-state")
-        with Horizontal(id="custom-footer"):
-            yield Button(make_key_btn_label("a", "add"), id="btn-footer-add", classes="footer-btn")
-            yield Button(make_key_btn_label("e", "edit"), id="btn-footer-edit", classes="footer-btn")
-            yield Button(make_key_btn_label("d", "delete"), id="btn-footer-delete", classes="footer-btn")
-            yield Button(make_key_btn_label("/", "search"), id="btn-footer-search", classes="footer-btn")
-            yield Button(make_key_btn_label("enter", "open"), id="btn-footer-open", classes="footer-btn")
-            yield Button(make_key_btn_label("esc", "back"), id="btn-footer-back", classes="footer-btn")
-            yield Button(make_key_btn_label("q", "quit"), id="btn-footer-quit", classes="footer-btn")
+        yield Footer()
 
     def on_mount(self) -> None:
         self.refresh_project_list()
@@ -355,25 +317,10 @@ class ProjectsListerApp(App[Optional[str]]):
 
     def on_click(self, event) -> None:
         search_bar = self.query_one("#search-bar", Input)
-        if self.focused is not search_bar and not isinstance(self.focused, Button):
+        if self.focused is not search_bar:
             self.ensure_list_focus()
 
-    def on_button_pressed(self, event: Button.Pressed) -> None:
-        btn_id = event.button.id
-        if btn_id == "btn-footer-add":
-            self.action_add_project()
-        elif btn_id == "btn-footer-edit":
-            self.action_edit_project()
-        elif btn_id == "btn-footer-delete":
-            self.action_delete_project()
-        elif btn_id == "btn-footer-search":
-            self.action_focus_search()
-        elif btn_id == "btn-footer-open":
-            self.action_open_project()
-        elif btn_id == "btn-footer-back":
-            self.action_clear_search_or_back()
-        elif btn_id == "btn-footer-quit":
-            self.action_quit_app()
+    # Removed on_button_pressed as the custom footer buttons no longer exist
 
     def ensure_list_focus(self) -> None:
         search_bar = self.query_one("#search-bar", Input)

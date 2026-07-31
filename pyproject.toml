@@ -6,8 +6,10 @@ build-backend = "setuptools.build_meta"
 name = "projectslister"
 version = "0.1.0"
 description = "Fast TUI project switcher"
-readme = "PRD.md"
+readme = "README.md"
 requires-python = ">=3.10"
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
     "textual>=0.50.0",
     "platformdirs>=4.0.0",

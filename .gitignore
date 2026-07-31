@@ -1,5 +1,20 @@
-.venv/
+# Python
 __pycache__/
-*.pyc
-*.tmp
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# Packaging/Build
+dist/
+build/
+*.egg-info/
 .pytest_cache/
+
+# System
+.DS_Store
+
+#others
+PRD.md

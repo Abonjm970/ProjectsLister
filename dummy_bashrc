@@ -1,0 +1,13 @@
+# This is my bashrc
+# Added by ProjectsLister
+projls() {
+    local tmpfile
+    tmpfile=$(mktemp)
+    projectslister > "$tmpfile"
+    local target
+    target=$(cat "$tmpfile")
+    rm -f "$tmpfile"
+    if [ -n "$target" ] && [ -d "$target" ]; then
+        cd "$target" || return
+    fi
+}
