@@ -18,3 +18,5 @@ build/
 
 #others
 PRD.md
+.agents/
+skills-lock.json
