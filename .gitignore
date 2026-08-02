@@ -20,3 +20,4 @@ build/
 PRD.md
 .agents/
 skills-lock.json
+.pypi
