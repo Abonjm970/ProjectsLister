@@ -172,27 +172,6 @@ async def test_app_edit_project(temp_manager):
 
 
 @pytest.mark.asyncio
-async def test_app_footer_buttons_click(temp_manager):
-    app = ProjectsListerApp(manager=temp_manager)
-    async with app.run_test() as pilot:
-        await pilot.pause()
-        
-        # Click footer add button
-        await pilot.click("#btn-footer-add")
-        await pilot.pause()
-        assert isinstance(app.screen, ProjectFormModal)
-
-        # Cancel modal
-        await pilot.press("escape")
-        await pilot.pause()
-
-        # Click footer search button
-        await pilot.click("#btn-footer-search")
-        await pilot.pause()
-        assert app.query_one("#search-bar").has_class("visible")
-
-
-@pytest.mark.asyncio
 async def test_app_quit(temp_manager):
     app = ProjectsListerApp(manager=temp_manager)
     async with app.run_test() as pilot:

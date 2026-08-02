@@ -1,4 +1,5 @@
 import sys
+import os
 from projectslister.app import ProjectsListerApp
 from projectslister.installer import (
     install_shell_integration,
@@ -32,6 +33,15 @@ def main() -> None:
     app.run()
     if app.selected_path:
         print(app.selected_path, flush=True)
+        # On Windows, PowerShell redirection often breaks TUIs.
+        # We allow passing a file path via environment variable to capture the result safely.
+        out_file = os.environ.get("PROJECTSLISTER_OUT")
+        if out_file:
+            try:
+                with open(out_file, "w", encoding="utf-8") as f:
+                    f.write(app.selected_path)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":

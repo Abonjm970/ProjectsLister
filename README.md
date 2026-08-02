@@ -33,7 +33,7 @@
    ```bash
    projectslister --install-shell
    ```
-   *Note: Open a new terminal window or run `source ~/.bashrc` (on Linux/macOS) to activate the command.*
+   *Note: Open a new terminal window or run `source ~/.bashrc` (on Linux/macOS) / `& $PROFILE` (on Windows) to activate the command.*
 
 ### Usage
 
@@ -88,7 +88,7 @@ ProjectsLister saves you from manual path management. When you select a project 
    ```bash
    projectslister --install-shell
    ```
-   *ملاحظة: افتح نافذة طرفية جديدة أو قم بتنفيذ `source ~/.bashrc` (على Linux/macOS) لتفعيل الأمر.*
+   *ملاحظة: افتح نافذة طرفية جديدة أو قم بتنفيذ `source ~/.bashrc` (على Linux/macOS) / `& $PROFILE` (على Windows) لتفعيل الأمر.*
 
 ### الاستخدام
 

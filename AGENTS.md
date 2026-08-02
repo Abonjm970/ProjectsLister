@@ -15,11 +15,13 @@ ProjectsLister is a fast, keyboard-driven TUI project switcher.
   pipx reinstall .
   ```
 - **Shell Integration:** The `projls` command is a shell shim. 
-  - *Constraint:* The Python app **must** print the selected path to `stdout` only *after* the TUI app exits. It must *not* attempt `cd` itself.
+  - *Constraint:* The Python app **must** print the selected path to `stdout` *after* the TUI app exits.
+  - *Windows Constraint:* Due to PowerShell redirection issues with TUIs, the app MUST use the `PROJECTSLISTER_OUT` environment variable to write the selected path to a temporary file, which the `projls` function then reads to perform `Set-Location`.
   - To test changes to shell integration:
     ```bash
     projectslister --install-shell
-    source ~/.bashrc  # or ~/.zshrc
+    # For Bash: source ~/.bashrc
+    # For PowerShell: . $PROFILE
     ```
 
 ## Publishing
@@ -44,3 +46,4 @@ ProjectsLister is a fast, keyboard-driven TUI project switcher.
 ## Operational Gotchas
 - Always test TUI exit behavior. If it crashes or doesn't print the path to `stdout`, the `projls` shell function won't be able to change directories.
 - Ensure CSS definitions in `app.py` use valid Textual markup syntax to avoid `MarkupError` at runtime.
+- **PowerShell Path Localization:** On Windows, the PowerShell profile might be located inside the OneDrive folder (e.g., `~\OneDrive\المستندات\WindowsPowerShell\Microsoft.PowerShell_profile.ps1`). Automated installation must detect this localized path correctly.

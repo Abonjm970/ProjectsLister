@@ -18,15 +18,22 @@ projls() {
 }
 """
 
-POWERSHELL_FUNCTION_BLOCK = """
+POWERSHELL_FUNCTION_BLOCK = r"""
 # Added by ProjectsLister
 function projls {
     $tmpfile = [System.IO.Path]::GetTempFileName()
-    projectslister | Out-File -FilePath $tmpfile -Encoding utf8
-    $target = (Get-Content $tmpfile -Raw).Trim()
-    Remove-Item $tmpfile -ErrorAction SilentlyContinue
-    if ($target -and (Test-Path $target)) {
-        Set-Location $target
+    $env:PROJECTSLISTER_OUT = $tmpfile
+    try {
+        projectslister
+        if (Test-Path $tmpfile) {
+            $target = (Get-Content $tmpfile -Raw -Encoding utf8).Trim()
+            if ($target -and (Test-Path $target)) {
+                Set-Location $target
+            }
+        }
+    } finally {
+        Remove-Item $tmpfile -ErrorAction SilentlyContinue
+        Remove-Item Env:\PROJECTSLISTER_OUT
     }
 }
 """
@@ -34,10 +41,21 @@ function projls {
 
 def detect_shell_and_profile() -> Tuple[str, Path]:
     if sys.platform.startswith("win"):
-        user_profile = os.environ.get("USERPROFILE", str(Path.home()))
-        ps_dir = Path(user_profile) / "Documents" / "WindowsPowerShell"
-        profile_path = ps_dir / "Microsoft.PowerShell_profile.ps1"
-        return "powershell", profile_path
+        # Use PowerShell to get the correct profile path
+        import subprocess
+        try:
+            result = subprocess.check_output(
+                ["powershell", "-Command", "Write-Host $PROFILE"], 
+                text=True
+            ).strip()
+            if result:
+                return "powershell", Path(result)
+            raise ValueError("Empty profile path")
+        except Exception:
+            # Fallback
+            user_profile = os.environ.get("USERPROFILE", str(Path.home()))
+            ps_dir = Path(user_profile) / "Documents" / "WindowsPowerShell"
+            return "powershell", ps_dir / "Microsoft.PowerShell_profile.ps1"
 
     shell_env = os.environ.get("SHELL", "")
     home = Path.home()
